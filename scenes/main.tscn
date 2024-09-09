@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://djf832y8qg2cg"]
+
+[ext_resource type="PackedScene" uid="uid://tlegwxmwe71i" path="res://scenes/planet_base.tscn" id="1_a7ipg"]
+
+[node name="main" type="Node3D"]
+
+[node name="PlanetBase" parent="." node_paths=PackedStringArray("Faces") instance=ExtResource("1_a7ipg")]
+HasToReinitialize = false
+Faces = [NodePath(""), NodePath(""), NodePath(""), NodePath(""), NodePath(""), NodePath("")]
