@@ -3,6 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+public enum GeometryType
+{
+    Cube,
+    Sphere
+}
+
 [Tool]
 public partial class PlanetBase : Node3D
 {
@@ -11,7 +17,9 @@ public partial class PlanetBase : Node3D
     // Editor controlls
     [ExportGroup("Controls")]
     [Export]
-    public int ShowOnly { get; set; }
+    public GeometryType GeometryType { get; set; }
+    [Export]
+    public int ShowOnly { get; set; } = -1;
     [Export]
     public bool HasToReinitialize { get; set; }
 
@@ -99,11 +107,16 @@ public partial class PlanetBase : Node3D
         {
             for(int z=0; z<=Resolution; z++)
             {
-                var vertex = new Vector3(2.0f / Resolution * x - 1.0f, 1, 2.0f / Resolution * z - 1.0f) ;//* Radius;
+                var vertex = new Vector3(2.0f / Resolution * x - 1.0f, 1, 2.0f / Resolution * z - 1.0f);
 
                 normals.Add(vertex.Normalized());  // Should be fine since we don't have landforms yet;
+
                 uvs.Add(new Vector2(1.0f / Resolution * x, 1.0f / Resolution * z)); // This maps a texture to only one face, TODO: Think/work on it later
-                vertices.Add(vertex);
+
+                if(GeometryType == GeometryType.Sphere)
+                    vertices.Add(vertex.Normalized() * Radius);
+                else
+                    vertices.Add(vertex * Radius);
 
                 if(x > 0 && z > 0)
                 {
