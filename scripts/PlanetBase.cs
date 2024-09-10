@@ -85,10 +85,9 @@ public partial class PlanetBase : Node3D
         {
             for(int z=0; z<Resolution; z++)
             {
-                var normal = new Vector3(2.0f / (x + 1) - 1.0f, 1, 2.0f / (z + 1) - 1.0f).Normalized();
-                var vertex = normal * Radius;
+                var vertex = new Vector3(2.0f / (x + 1) - 1.0f, 1, 2.0f / (z + 1) - 1.0f) ;//* Radius;
 
-                normals.Add(normal);  // Should be fine since we don't have landforms yet;
+                normals.Add(vertex.Normalized());  // Should be fine since we don't have landforms yet;
                 uvs.Add(new Vector2(1.0f / (x + 1), 1.0f / (z + 1))); // This maps a texture to only one face, TODO: Think/work on it later
                 vertices.Add(vertex);
 
@@ -99,14 +98,14 @@ public partial class PlanetBase : Node3D
                     // For each triangle, I will start at the top left and count in a clockwise rotation
 
                     // For the first tringle, we'll have vertices for (x-1, z-1), (x-1, z) then (x, z)
-                    indeces.Add((x - 1)*(Resolution) + (z -1));
+                    indeces.Add(x*(Resolution) + z);
                     indeces.Add((x - 1)*(Resolution) + z);
-                    indeces.Add(x*(Resolution) + z);
+                    indeces.Add((x - 1)*(Resolution) + (z - 1));
 
-                    // For the first tringle, we'll have vertices for (x-1, z-1), (x, z) then (x, z - 1)
-                    indeces.Add((x - 1)*(Resolution) + (z -1));
-                    indeces.Add(x*(Resolution) + z);
+                    // For the second tringle, we'll have vertices for (x-1, z-1), (x, z) then (x, z - 1)
                     indeces.Add(x*(Resolution) + (z - 1));
+                    indeces.Add(x*(Resolution) + z);
+                    indeces.Add((x - 1)*(Resolution) + (z - 1));
                 }
             }
         }
@@ -125,32 +124,32 @@ public partial class PlanetBase : Node3D
         (_faces[0].Mesh as ArrayMesh).AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArray);
 
         // Bottom face
-        surfaceArray[(int)Mesh.ArrayType.Vertex] = vertices.Select(vert => vert * Vector3.Down).ToArray();
-        surfaceArray[(int)Mesh.ArrayType.Normal] = normals.Select(norm => norm * Vector3.Down).ToArray();
+        surfaceArray[(int)Mesh.ArrayType.Vertex] = vertices.Select(vert => new Vector3(vert.Z, -vert.Y, vert.X)).ToArray();
+        surfaceArray[(int)Mesh.ArrayType.Normal] = normals.Select(norm => new Vector3(norm.Z, -norm.Y, norm.X)).ToArray();
         //surfaceArray[(int)Mesh.ArrayType.TexUV] = uvs.ToArray();
         (_faces[1].Mesh as ArrayMesh).AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArray);
 
         // Right face
-        surfaceArray[(int)Mesh.ArrayType.Vertex] = vertices.Select(vert => new Vector3(vert.Y, vert.X, vert.Z)).ToArray();
-        surfaceArray[(int)Mesh.ArrayType.Normal] = normals.Select(norm => new Vector3(norm.Y, norm.X, norm.Z)).ToArray();
+        surfaceArray[(int)Mesh.ArrayType.Vertex] = vertices.Select(vert => new Vector3(vert.Z, vert.X, vert.Y)).ToArray();
+        surfaceArray[(int)Mesh.ArrayType.Normal] = normals.Select(norm => new Vector3(norm.Z, norm.X, norm.Y)).ToArray();
         //surfaceArray[(int)Mesh.ArrayType.TexUV] = uvs.ToArray();
         (_faces[2].Mesh as ArrayMesh).AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArray);
 
         // Left face
-        surfaceArray[(int)Mesh.ArrayType.Vertex] = vertices.Select(vert => new Vector3(vert.Y, vert.X, vert.Z) * Vector3.Left).ToArray();
-        surfaceArray[(int)Mesh.ArrayType.Normal] = normals.Select(norm => new Vector3(norm.Y, norm.X, norm.Z) * Vector3.Left).ToArray();
+        surfaceArray[(int)Mesh.ArrayType.Vertex] = vertices.Select(vert => new Vector3(-vert.Y, vert.X, vert.Z)).ToArray();
+        surfaceArray[(int)Mesh.ArrayType.Normal] = normals.Select(norm => new Vector3(-norm.Y, norm.X, norm.Z)).ToArray();
         //surfaceArray[(int)Mesh.ArrayType.TexUV] = uvs.ToArray();
         (_faces[3].Mesh as ArrayMesh).AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArray);
 
         // Back face
-        surfaceArray[(int)Mesh.ArrayType.Vertex] = vertices.Select(vert => new Vector3(vert.X, vert.Z, vert.Y)).ToArray();
-        surfaceArray[(int)Mesh.ArrayType.Normal] = normals.Select(norm => new Vector3(norm.X, norm.Z, norm.Y)).ToArray();
+        surfaceArray[(int)Mesh.ArrayType.Vertex] = vertices.Select(vert => new Vector3(vert.Y, vert.Z, vert.X)).ToArray();
+        surfaceArray[(int)Mesh.ArrayType.Normal] = normals.Select(norm => new Vector3(norm.Y, norm.Z, norm.X)).ToArray();
         //surfaceArray[(int)Mesh.ArrayType.TexUV] = uvs.ToArray();
         (_faces[4].Mesh as ArrayMesh).AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArray);
 
         // Front face
-        surfaceArray[(int)Mesh.ArrayType.Vertex] = vertices.Select(vert => new Vector3(vert.X, vert.Z, vert.Y) * Vector3.Forward).ToArray();
-        surfaceArray[(int)Mesh.ArrayType.Normal] = normals.Select(norm => new Vector3(norm.X, norm.Z, norm.Y) * Vector3.Forward).ToArray();
+        surfaceArray[(int)Mesh.ArrayType.Vertex] = vertices.Select(vert => new Vector3(vert.X, vert.Z, -vert.Y)).ToArray();
+        surfaceArray[(int)Mesh.ArrayType.Normal] = normals.Select(norm => new Vector3(norm.X, norm.Z, -norm.Y)).ToArray();
         //surfaceArray[(int)Mesh.ArrayType.TexUV] = uvs.ToArray();
         (_faces[5].Mesh as ArrayMesh).AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArray);
 
