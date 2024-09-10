@@ -85,10 +85,10 @@ public partial class PlanetBase : Node3D
         {
             for(int z=0; z<Resolution; z++)
             {
-                var vertex = new Vector3(2.0f / (x + 1) - 1.0f, 1, 2.0f / (z + 1) - 1.0f) ;//* Radius;
+                var vertex = new Vector3(2.0f / Resolution * x - 1.0f, 1, 2.0f / Resolution * z - 1.0f) ;//* Radius;
 
                 normals.Add(vertex.Normalized());  // Should be fine since we don't have landforms yet;
-                uvs.Add(new Vector2(1.0f / (x + 1), 1.0f / (z + 1))); // This maps a texture to only one face, TODO: Think/work on it later
+                uvs.Add(new Vector2(1.0f / Resolution * x, 1.0f / Resolution * z)); // This maps a texture to only one face, TODO: Think/work on it later
                 vertices.Add(vertex);
 
                 if(x > 0 && z > 0)
@@ -97,12 +97,12 @@ public partial class PlanetBase : Node3D
                     // Sinse we ignore the first row and column, we can refer to the revious vertices to create the indeces
                     // For each triangle, I will start at the top left and count in a clockwise rotation
 
-                    // For the first tringle, we'll have vertices for (x-1, z-1), (x-1, z) then (x, z)
+                    // For the first tringle, we'll have vertices for (x, z), (x-1, z) then (x-1, z-1)
                     indeces.Add(x*(Resolution) + z);
                     indeces.Add((x - 1)*(Resolution) + z);
                     indeces.Add((x - 1)*(Resolution) + (z - 1));
 
-                    // For the second tringle, we'll have vertices for (x-1, z-1), (x, z) then (x, z - 1)
+                    // For the second tringle, we'll have vertices for (x, z - 1), (x, z) then (x-1, z-1)
                     indeces.Add(x*(Resolution) + (z - 1));
                     indeces.Add(x*(Resolution) + z);
                     indeces.Add((x - 1)*(Resolution) + (z - 1));
@@ -125,13 +125,13 @@ public partial class PlanetBase : Node3D
 
         // Bottom face
         surfaceArray[(int)Mesh.ArrayType.Vertex] = vertices.Select(vert => new Vector3(vert.Z, -vert.Y, vert.X)).ToArray();
-        surfaceArray[(int)Mesh.ArrayType.Normal] = normals.Select(norm => new Vector3(norm.Z, -norm.Y, norm.X)).ToArray();
+        surfaceArray[(int)Mesh.ArrayType.Normal] = normals.Select(norm => new Vector3(norm.X, -norm.Y, norm.Y)).ToArray();
         //surfaceArray[(int)Mesh.ArrayType.TexUV] = uvs.ToArray();
         (_faces[1].Mesh as ArrayMesh).AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArray);
 
         // Right face
         surfaceArray[(int)Mesh.ArrayType.Vertex] = vertices.Select(vert => new Vector3(vert.Z, vert.X, vert.Y)).ToArray();
-        surfaceArray[(int)Mesh.ArrayType.Normal] = normals.Select(norm => new Vector3(norm.Z, norm.X, norm.Y)).ToArray();
+        surfaceArray[(int)Mesh.ArrayType.Normal] = normals.Select(norm => new Vector3(norm.Y, norm.X, norm.Z)).ToArray();
         //surfaceArray[(int)Mesh.ArrayType.TexUV] = uvs.ToArray();
         (_faces[2].Mesh as ArrayMesh).AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArray);
 
@@ -143,7 +143,7 @@ public partial class PlanetBase : Node3D
 
         // Back face
         surfaceArray[(int)Mesh.ArrayType.Vertex] = vertices.Select(vert => new Vector3(vert.Y, vert.Z, vert.X)).ToArray();
-        surfaceArray[(int)Mesh.ArrayType.Normal] = normals.Select(norm => new Vector3(norm.Y, norm.Z, norm.X)).ToArray();
+        surfaceArray[(int)Mesh.ArrayType.Normal] = normals.Select(norm => new Vector3(norm.X, norm.Z, norm.Z)).ToArray();
         //surfaceArray[(int)Mesh.ArrayType.TexUV] = uvs.ToArray();
         (_faces[4].Mesh as ArrayMesh).AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArray);
 
