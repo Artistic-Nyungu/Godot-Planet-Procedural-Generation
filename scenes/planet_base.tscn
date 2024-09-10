@@ -5,6 +5,5 @@
 [node name="PlanetBase" type="Node3D" node_paths=PackedStringArray("Faces")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.06305, 0)
 script = ExtResource("1_a1t3s")
-HasToReinitialize = true
 Radius = 10.0
-Faces = [null]
+Faces = []

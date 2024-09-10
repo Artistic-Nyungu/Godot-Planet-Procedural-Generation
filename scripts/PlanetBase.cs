@@ -54,13 +54,22 @@ public partial class PlanetBase : Node3D
     {
         GD.Print("Initialiing planet base");
 
+        // Delete previous faces
+        foreach(var child in this.GetChildren())
+        {
+            if(child is MeshInstance3D meshInstance)
+                meshInstance.QueueFree();
+        }
+
         // Create faces
         _faces = new MeshInstance3D[6];
 
-        for(int i=0; i < _faces.Length; i++)
+        for(int i=0; i < 6; i++)
         {
             _faces[i] = new MeshInstance3D();
             _faces[i].Mesh = new ArrayMesh();
+
+            this.AddChild(_faces[i]);
         }
         var surfaceArray = new Godot.Collections.Array();
         var vertices = new List<Vector3>();
@@ -76,11 +85,11 @@ public partial class PlanetBase : Node3D
         {
             for(int z=0; z<Resolution; z++)
             {
-                var normal = new Vector3(2.0f / x - 1.0f, 1, 2.0f / z - 1.0f).Normalized();
+                var normal = new Vector3(2.0f / (x + 1) - 1.0f, 1, 2.0f / (z + 1) - 1.0f).Normalized();
                 var vertex = normal * Radius;
 
                 normals.Add(normal);  // Should be fine since we don't have landforms yet;
-                uvs.Add(new Vector2(1.0f / x, 1.0f / z)); // This maps a texture to only one face, TODO: Think/work on it later
+                uvs.Add(new Vector2(1.0f / (x + 1), 1.0f / (z + 1))); // This maps a texture to only one face, TODO: Think/work on it later
                 vertices.Add(vertex);
 
                 if(x > 0 && z > 0)
