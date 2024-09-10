@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/PlanetBase.cs" id="1_a1t3s"]
 
 [node name="PlanetBase" type="Node3D" node_paths=PackedStringArray("Faces")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.06305, 0)
+transform = Transform3D(0.561405, -0.827541, 0, 0.718828, 0.487654, -0.495459, 0.410012, 0.278153, 0.868632, -1.24053, 1.06305, 0)
 script = ExtResource("1_a1t3s")
 Radius = 10.0
-Faces = []
+Faces = [NodePath("@MeshInstance3D@18548"), NodePath("@MeshInstance3D@18549"), NodePath("@MeshInstance3D@18550"), NodePath("@MeshInstance3D@18551"), NodePath("@MeshInstance3D@18552"), NodePath("@MeshInstance3D@18553")]

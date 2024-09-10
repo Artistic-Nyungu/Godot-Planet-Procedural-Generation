@@ -11,7 +11,9 @@ public partial class PlanetBase : Node3D
     // Editor controlls
     [ExportGroup("Controls")]
     [Export]
-    bool HasToReinitialize { get; set; }
+    public int ShowOnly { get; set; }
+    [Export]
+    public bool HasToReinitialize { get; set; }
 
     // General properties of an ellipsoid
     [ExportGroup("General Properties")]
@@ -48,6 +50,18 @@ public partial class PlanetBase : Node3D
 
         if (HasToReinitialize)
             Initialize();
+
+        if(ShowOnly >= 0 && ShowOnly < 6)
+        {
+            for(int i = 0; i<6; i++)
+            {
+                if(ShowOnly != i)
+                    _faces[i].Hide();
+            } 
+        }
+        else
+            for(int i = 0; i<6; i++)
+                _faces[i].Show();
     }
 
     public void Initialize()
@@ -81,9 +95,9 @@ public partial class PlanetBase : Node3D
         // The initial width and height of the faces will the 2 units, we will base our x and z on this
         // With this in mind, we will first create a vertex for a flat face, normalize  it, then curve it using the radius
         // For the other faces we'll just swarp the values and the signs for x, y and z
-        for(int x=0; x<Resolution; x++)
+        for(int x=0; x<=Resolution; x++)
         {
-            for(int z=0; z<Resolution; z++)
+            for(int z=0; z<=Resolution; z++)
             {
                 var vertex = new Vector3(2.0f / Resolution * x - 1.0f, 1, 2.0f / Resolution * z - 1.0f) ;//* Radius;
 
