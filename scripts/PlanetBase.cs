@@ -25,16 +25,18 @@ public enum FaceType
 [Tool]
 public partial class PlanetBase : Node3D
 {
-    protected MeshInstance3D[] _faces;
+    protected Array<MeshInstance3D> _faces;
     private float _radius = 1;
     private GeometryType _geometry = GeometryType.Sphere;
     private int _resolution = 30;
     private FaceType _faceType = FaceType.All;
     private Material _material;
+    private Array<NoiseSettings> _noiseSettings;
 
 
 
     // Editor controlls
+
 
     [ExportGroup("Controls")]
     [Export]
@@ -53,9 +55,11 @@ public partial class PlanetBase : Node3D
     public int Resolution { get => _resolution; set => SetProperty(ref _resolution, value); }
 
     // Geological properties
-    [ExportGroup("Geological Properties")]
+    [ExportGroup("Geometrical Properties")]
     [Export]
-    public MeshInstance3D[] Faces{ get => _faces; set => SetProperty(ref _faces, value); }
+    public Array<MeshInstance3D> Faces{ get => _faces; set => SetProperty(ref _faces, value); }
+    [Export]
+    public Array<NoiseSettings> NoiseSettings { get => _noiseSettings; set => SetProperty(ref _noiseSettings, value); }
 
     // TODO: Landform generation propeties i.e Noise parameters & Colors
 
@@ -89,7 +93,7 @@ public partial class PlanetBase : Node3D
         }
 
         // Create faces
-        _faces = new MeshInstance3D[6];
+        _faces = new Array<MeshInstance3D>(new MeshInstance3D[6]);
 
         for(int i=0; i < 6; i++)
         {
@@ -182,8 +186,36 @@ public partial class PlanetBase : Node3D
         //surfaceArray[(int)Mesh.ArrayType.TexUV] = uvs.ToArray();
         (_faces[5].Mesh as ArrayMesh).AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArray);
 
-        foreach(var face in _faces)
+        GD.Print("smt");
+        for(int f=0; f<_faces.Count; f++)
+        {
+            var face = _faces[f];
+            GD.Print(face);
+
+            MeshDataTool dataTool = new MeshDataTool();
+            dataTool.CreateFromSurface(face.Mesh as ArrayMesh, (int)Mesh.ArrayType.Vertex);
+
+            for(int s=0; s < _noiseSettings.Count; s++)
+            {
+                for(int i = 0; i < dataTool.GetVertexCount(); i++)
+                {
+                    var vert = dataTool.GetVertex(i);
+                    vert = vert.Normalized() * (vert.Length() + _noiseSettings[s].Evaluate(vert.X, vert.Y* _radius + vert.Z));
+                    dataTool.SetVertex(i, vert);
+                }
+            }
+
+            for(int i = 0; i<dataTool.GetFaceCount(); i++)
+            {
+                var vert = dataTool.GetFaceVertex(i, 0);
+                var norm = dataTool.GetFaceNormal(i);
+                dataTool.SetVertexNormal(vert, norm);
+            }
+
+            dataTool.CommitToSurface(face.Mesh as ArrayMesh);
+
             face.Show();
+        }
 
         CanReinitialize = true;
     }
@@ -192,9 +224,9 @@ public partial class PlanetBase : Node3D
     {
         base._ValidateProperty(property);
 
-        //GD.PrintRich($"[color=yellow]Validating property: [/color]{PendingValidations}");
+        GD.PrintRich($"[color=yellow]Validating property: [/color]{PendingValidations}");
 
-        if (CanReinitialize && PendingValidations == 0)
+        if (property["name"].AsStringName() == PropertyName.ShowFaces)
             Initialize();
 
         if(property["name"].AsStringName() == PropertyName.ShowFaces)
@@ -237,43 +269,5 @@ public partial class PlanetBase : Node3D
     private void _on_property_list_changed()
     {
         PendingValidations += 1;
-    }
-
-    public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
-    {
-        var properties = new Array<Dictionary>(); // = base._GetPropertyList();
-
-        properties.Add(new Godot.Collections.Dictionary()
-        {
-            { "name", PropertyName.ShowFaces },
-            { "type", (int)Variant.Type.Int },
-            { "hint", (int)PropertyHint.Enum },
-            { "hint_string", string.Join(',', Enum.GetNames(typeof(FaceType))) },
-        });
-
-        return properties;
-    }
-
-    public override Variant _Get(StringName property)
-    {
-        if (property.ToString().Equals(PropertyName.ShowFaces))
-        {
-            return Variant.From(_faceType);
-        }
-
-        //return base._Get(property);
-        return default;
-    }
-
-    public override bool _Set(StringName property, Variant value)
-    {
-        if (property.ToString().Equals(PropertyName.ShowFaces))
-        {
-            _faceType = value.As<FaceType>();
-            return true;
-        }
-
-        //return base._Set(property, value);
-        return false;
     }
 }
