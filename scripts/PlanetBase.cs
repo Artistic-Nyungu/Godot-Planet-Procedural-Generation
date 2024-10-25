@@ -186,35 +186,39 @@ public partial class PlanetBase : Node3D
         //surfaceArray[(int)Mesh.ArrayType.TexUV] = uvs.ToArray();
         (_faces[5].Mesh as ArrayMesh).AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArray);
 
-        GD.Print("smt");
+        if(_noiseSettings != null)
         for(int f=0; f<_faces.Count; f++)
         {
             var face = _faces[f];
-            GD.Print(face);
 
-            MeshDataTool dataTool = new MeshDataTool();
-            dataTool.CreateFromSurface(face.Mesh as ArrayMesh, (int)Mesh.ArrayType.Vertex);
-
-            for(int s=0; s < _noiseSettings.Count; s++)
+            using(MeshDataTool dataTool = new MeshDataTool())
             {
-                for(int i = 0; i < dataTool.GetVertexCount(); i++)
+                dataTool.CreateFromSurface(face.Mesh as ArrayMesh, (int)Mesh.ArrayType.Vertex);
+
+                for(int s=0; s < _noiseSettings.Count; s++)
                 {
-                    var vert = dataTool.GetVertex(i);
-                    vert = vert.Normalized() * (vert.Length() + _noiseSettings[s].Evaluate(vert.X, vert.Y* _radius + vert.Z));
-                    dataTool.SetVertex(i, vert);
+                    for(int i = 0; i < dataTool.GetVertexCount(); i++)
+                    {
+                        var vert = dataTool.GetVertex(i);
+                        //vert = vert.Normalized() * (vert.Length() + _noiseSettings[s].Evaluate(vert.Length() * 0.5f * (vert.X / Mathf.Abs(vert.X)), vert.Length() * 0.5f * (vert.X / Mathf.Abs(vert.X))));
+                        vert = vert.Normalized() * (vert.Length() + _noiseSettings[s].Evaluate(vert));
+                        dataTool.SetVertex(i, vert);
+                    }
                 }
+
+                for(int i = 0; i<dataTool.GetFaceCount(); i++)
+                {
+                    var vert = dataTool.GetFaceVertex(i, 0);
+                    var norm = dataTool.GetFaceNormal(i);
+                    dataTool.SetVertexNormal(vert, norm);
+                }
+
+                face.Mesh = new ArrayMesh();
+
+                dataTool.CommitToSurface(face.Mesh as ArrayMesh);
+
+                face.Show();
             }
-
-            for(int i = 0; i<dataTool.GetFaceCount(); i++)
-            {
-                var vert = dataTool.GetFaceVertex(i, 0);
-                var norm = dataTool.GetFaceNormal(i);
-                dataTool.SetVertexNormal(vert, norm);
-            }
-
-            dataTool.CommitToSurface(face.Mesh as ArrayMesh);
-
-            face.Show();
         }
 
         CanReinitialize = true;
@@ -224,9 +228,9 @@ public partial class PlanetBase : Node3D
     {
         base._ValidateProperty(property);
 
-        GD.PrintRich($"[color=yellow]Validating property: [/color]{PendingValidations}");
+        // GD.PrintRich($"[color=yellow]Validating property: [/color]{PendingValidations}");
 
-        if (property["name"].AsStringName() == PropertyName.ShowFaces)
+        if (property["name"].AsStringName() == PropertyName.ShowFaces || property["name"].AsStringName() == PropertyName.NoiseSettings)
             Initialize();
 
         if(property["name"].AsStringName() == PropertyName.ShowFaces)
