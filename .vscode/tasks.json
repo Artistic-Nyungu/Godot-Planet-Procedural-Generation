@@ -3,7 +3,7 @@
 	"tasks": [
 		{
             "label": "build",
-            "command": "C:\\Godot\\Godot4.exe",
+            "command": "C:\\Programming\\Tools\\Godot\\Godot4.exe",
             "type": "process",
             "args": [
                 "--build-solutions",
