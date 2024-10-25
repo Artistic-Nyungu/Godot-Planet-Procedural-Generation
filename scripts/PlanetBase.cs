@@ -2,7 +2,6 @@ using Godot;
 using Godot.Collections;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 
 public enum GeometryType
@@ -129,16 +128,19 @@ public partial class PlanetBase : Node3D
                     // After some observation, I concluded that the general formula was index = x*(Resolution + 1) + z
                     // Sinse we ignore the first row and column, we can refer to the revious vertices to create the indeces
                     // For each triangle, I will start at the top left and count in a clockwise rotation
+                    // Imagine a rect with a line from top-left to bottom-right dividing the triangles 
 
-                    // For the first tringle, we'll have vertices for (x, z), (x-1, z) then (x-1, z-1)
+                    // For the first tringle, we'll have vertices for (x-1, z-1), (x, z) then (x-1, z)
+                    // It is sitting on the floor of the rect
+                    indeces.Add((x - 1)*(Resolution + 1) + (z - 1));
                     indeces.Add(x*(Resolution + 1) + z);
                     indeces.Add((x - 1)*(Resolution + 1) + z);
-                    indeces.Add((x - 1)*(Resolution + 1) + (z - 1));
 
-                    // For the second tringle, we'll have vertices for (x, z - 1), (x, z) then (x-1, z-1)
+                    // For the second tringle, we'll have vertices for (x-1, z-1), (x, z - 1) then (x, z)
+                    // It is hanging from the ceiling of the rect
+                    indeces.Add((x - 1)*(Resolution + 1) + (z - 1));
                     indeces.Add(x*(Resolution + 1) + (z - 1));
                     indeces.Add(x*(Resolution + 1) + z);
-                    indeces.Add((x - 1)*(Resolution + 1) + (z - 1));
                 }
             }
         }
@@ -152,39 +154,38 @@ public partial class PlanetBase : Node3D
         // Top face
         surfaceArray[(int)Mesh.ArrayType.Vertex] = vertices.ToArray();
         surfaceArray[(int)Mesh.ArrayType.Index] = indeces.ToArray();
-        surfaceArray[(int)Mesh.ArrayType.Normal] = vertices.Select(vert => vert.Normalized()).ToArray();
         surfaceArray[(int)Mesh.ArrayType.TexUV] = uvs.ToArray();
-        (_faces[0].Mesh as ArrayMesh).AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArray);
+        (_faces[(int)FaceType.Top].Mesh as ArrayMesh).AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArray);
 
         // Bottom face
         surfaceArray[(int)Mesh.ArrayType.Vertex] = vertices.Select(vert => new Vector3(vert.Z, -vert.Y, vert.X)).ToArray();
-        surfaceArray[(int)Mesh.ArrayType.Normal] = surfaceArray[(int)Mesh.ArrayType.Vertex].AsVector3Array().Select(vert => vert.Normalized()).ToArray();
+        //surfaceArray[(int)Mesh.ArrayType.Normal] = surfaceArray[(int)Mesh.ArrayType.Vertex].AsVector3Array().Select(vert => vert.Normalized()).ToArray();
         //surfaceArray[(int)Mesh.ArrayType.TexUV] = uvs.ToArray();
-        (_faces[1].Mesh as ArrayMesh).AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArray);
+        (_faces[(int)FaceType.Bottom].Mesh as ArrayMesh).AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArray);
 
         // Right face
         surfaceArray[(int)Mesh.ArrayType.Vertex] = vertices.Select(vert => new Vector3(vert.Z, vert.X, vert.Y)).ToArray();
-        surfaceArray[(int)Mesh.ArrayType.Normal] = surfaceArray[(int)Mesh.ArrayType.Vertex].AsVector3Array().Select(vert => vert.Normalized()).ToArray();
+        //surfaceArray[(int)Mesh.ArrayType.Normal] = surfaceArray[(int)Mesh.ArrayType.Vertex].AsVector3Array().Select(vert => vert.Normalized()).ToArray();
         //surfaceArray[(int)Mesh.ArrayType.TexUV] = uvs.ToArray();
-        (_faces[2].Mesh as ArrayMesh).AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArray);
+        (_faces[(int)FaceType.Right].Mesh as ArrayMesh).AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArray);
 
         // Left face
         surfaceArray[(int)Mesh.ArrayType.Vertex] = vertices.Select(vert => new Vector3(-vert.Y, vert.X, vert.Z)).ToArray();
-        surfaceArray[(int)Mesh.ArrayType.Normal] = surfaceArray[(int)Mesh.ArrayType.Vertex].AsVector3Array().Select(vert => vert.Normalized()).ToArray();
+        //surfaceArray[(int)Mesh.ArrayType.Normal] = surfaceArray[(int)Mesh.ArrayType.Vertex].AsVector3Array().Select(vert => vert.Normalized()).ToArray();
         //surfaceArray[(int)Mesh.ArrayType.TexUV] = uvs.ToArray();
-        (_faces[3].Mesh as ArrayMesh).AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArray);
+        (_faces[(int)FaceType.Left].Mesh as ArrayMesh).AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArray);
 
         // Back face
         surfaceArray[(int)Mesh.ArrayType.Vertex] = vertices.Select(vert => new Vector3(vert.Y, vert.Z, vert.X)).ToArray();
-        surfaceArray[(int)Mesh.ArrayType.Normal] = surfaceArray[(int)Mesh.ArrayType.Vertex].AsVector3Array().Select(vert => vert.Normalized()).ToArray();
+        //surfaceArray[(int)Mesh.ArrayType.Normal] = surfaceArray[(int)Mesh.ArrayType.Vertex].AsVector3Array().Select(vert => vert.Normalized()).ToArray();
         //surfaceArray[(int)Mesh.ArrayType.TexUV] = uvs.ToArray();
-        (_faces[4].Mesh as ArrayMesh).AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArray);
+        (_faces[(int)FaceType.Back].Mesh as ArrayMesh).AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArray);
 
         // Front face
         surfaceArray[(int)Mesh.ArrayType.Vertex] = vertices.Select(vert => new Vector3(vert.X, vert.Z, -vert.Y)).ToArray();
-        surfaceArray[(int)Mesh.ArrayType.Normal] = surfaceArray[(int)Mesh.ArrayType.Vertex].AsVector3Array().Select(vert => vert.Normalized()).ToArray();
+        //surfaceArray[(int)Mesh.ArrayType.Normal] = surfaceArray[(int)Mesh.ArrayType.Vertex].AsVector3Array().Select(vert => vert.Normalized()).ToArray();
         //surfaceArray[(int)Mesh.ArrayType.TexUV] = uvs.ToArray();
-        (_faces[5].Mesh as ArrayMesh).AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArray);
+        (_faces[(int)FaceType.Front].Mesh as ArrayMesh).AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArray);
 
         if(_noiseSettings != null)
         for(int f=0; f<_faces.Count; f++)
@@ -197,10 +198,12 @@ public partial class PlanetBase : Node3D
 
                 for(int s=0; s < _noiseSettings.Count; s++)
                 {
+                    if(_noiseSettings[s] == null)
+                        continue;
+
                     for(int i = 0; i < dataTool.GetVertexCount(); i++)
                     {
                         var vert = dataTool.GetVertex(i);
-                        //vert = vert.Normalized() * (vert.Length() + _noiseSettings[s].Evaluate(vert.Length() * 0.5f * (vert.X / Mathf.Abs(vert.X)), vert.Length() * 0.5f * (vert.X / Mathf.Abs(vert.X))));
                         vert = vert.Normalized() * (vert.Length() + _noiseSettings[s].Evaluate(vert));
                         dataTool.SetVertex(i, vert);
                     }
@@ -208,9 +211,18 @@ public partial class PlanetBase : Node3D
 
                 for(int i = 0; i<dataTool.GetFaceCount(); i++)
                 {
-                    var vert = dataTool.GetFaceVertex(i, 0);
-                    var norm = dataTool.GetFaceNormal(i);
-                    dataTool.SetVertexNormal(vert, norm);
+                    var vert1 = dataTool.GetFaceVertex(i, 0);
+                    var vert2 = dataTool.GetFaceVertex(i, 1);
+                    var vert3 = dataTool.GetFaceVertex(i, 2);
+
+                    var ab = dataTool.GetVertex(vert1) - dataTool.GetVertex(vert2);
+                    var ac = dataTool.GetVertex(vert1) - dataTool.GetVertex(vert3);
+
+                    var norm = ac.Cross(ab).Normalized();
+
+                    dataTool.SetVertexNormal(vert1, norm);
+                    dataTool.SetVertexNormal(vert2, norm);
+                    dataTool.SetVertexNormal(vert3, norm);
                 }
 
                 face.Mesh = new ArrayMesh();
@@ -230,7 +242,8 @@ public partial class PlanetBase : Node3D
 
         // GD.PrintRich($"[color=yellow]Validating property: [/color]{PendingValidations}");
 
-        if (property["name"].AsStringName() == PropertyName.ShowFaces || property["name"].AsStringName() == PropertyName.NoiseSettings)
+        if (property["name"].AsStringName() == PropertyName.ShowFaces || 
+            property["name"].AsStringName() == PropertyName.NoiseSettings)
             Initialize();
 
         if(property["name"].AsStringName() == PropertyName.ShowFaces)
