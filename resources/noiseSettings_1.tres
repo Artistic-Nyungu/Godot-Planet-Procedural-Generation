@@ -3,11 +3,12 @@
 [ext_resource type="Script" path="res://scripts/NoiseSettings.cs" id="1_0c2kv"]
 
 [resource]
+resource_local_to_scene = true
 script = ExtResource("1_0c2kv")
-Frequency = 0.0
-Amplitude = 0.0
-Lacunarity = 0.0
-Persistence = 0.0
-Scale = 0.0
-Layers = 0
+Frequency = 0.5
+Amplitude = 5.0
+Lacunarity = 2.0
+Persistence = 0.5
+Scale = 0.01
+Layers = 4
 Offset = Vector2(0, 0)
