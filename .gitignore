@@ -2,3 +2,5 @@
 .godot/
 .vscode/
 *.tmp
+.vscode/tasks.json
+.vscode/launch.json
